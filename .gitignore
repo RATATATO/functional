@@ -1,0 +1,10 @@
+# cmake
+CMakeFiles/*
+Testing/
+*.cmake
+CMakeCache.txt
+Makefile
+bin/*
+# vim
+*.swp
+
