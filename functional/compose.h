@@ -21,5 +21,11 @@ template <
 > constexpr std::function<R(T)> operator<(G g, F f)
   { return [f, g](T t) -> R { return g(f(std::forward<T>(t))); }; }
 
+template <
+  typename F, typename G, typename T = typename F::argument_type,
+  typename R = typename std::result_of<G(typename F::result_type)>::type
+> constexpr std::function<R(T)> operator>(F f, G g)
+  { return [f, g](T t) -> R { return g(f(std::forward<T>(t))); }; }
+
 #endif
 

@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(verifyId1) {
   BOOST_CHECK(result.size() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(verifyComposeOperator0) {
+BOOST_AUTO_TEST_CASE(verifyComposeRightAssociativeOperator0) {
   auto push = ::push1 < functional::id<::List>();
 
   ::List l;
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(verifyComposeOperator0) {
   BOOST_CHECK(result.back() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(verifyComposeOperator1) {
+BOOST_AUTO_TEST_CASE(verifyComposeRightAssociativeOperator1) {
   auto pushsh = ::push1 < (::push1 < functional::id<::List>());
 
   ::List l;
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(verifyComposeOperator1) {
   BOOST_CHECK(result.back() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(verifyComposeOperator2) {
+BOOST_AUTO_TEST_CASE(verifyComposeRightAssociativeOperator2) {
   auto pushsh = ::push1_ref < (::push1_ref < functional::id<::List&>());
 
   ::List l;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(verifyComposeOperator2) {
   BOOST_CHECK(result.back() == 1);
 }
 
-BOOST_AUTO_TEST_CASE(verifyComposeOperator3) {
+BOOST_AUTO_TEST_CASE(verifyComposeRightAssociativeOperator3) {
   auto pushback = ::back < (::push1 < functional::id<::List>());
 
   ::List l;
@@ -78,8 +78,26 @@ BOOST_AUTO_TEST_CASE(verifyComposeOperator3) {
   BOOST_CHECK(result == 1);
 }
 
+BOOST_AUTO_TEST_CASE(verifyComposeLeftAssociativeOperator0) {
+  auto pushback = functional::id<::List>() > ::push1 > ::back;
+
+  ::List l;
+  auto result = pushback(l);
+  BOOST_CHECK(result == 1);
+}
+
+BOOST_AUTO_TEST_CASE(verifyComposeLeftAssociativeOperator2) {
+  auto pushsh = functional::id<::List&>() > ::push1_ref > ::push1_ref;
+
+  ::List l;
+  auto& result = pushsh(l);
+  BOOST_CHECK(&result == &l);
+  BOOST_CHECK(result.size() == 2);
+  BOOST_CHECK(result.back() == 1);
+}
+
 BOOST_AUTO_TEST_CASE(verifyComposeOperatorForFunction) {
-  auto pushsh = ::push1_fn < (::push1_fn < functional::id<::List>());
+  auto pushsh =  functional::id<::List>() > ::push1_fn > ::push1_fn;
 
   ::List l;
   auto result = pushsh(l);
@@ -89,7 +107,7 @@ BOOST_AUTO_TEST_CASE(verifyComposeOperatorForFunction) {
 
 BOOST_AUTO_TEST_CASE(verifyComposeOperatorForBindedFunction) {
   auto push1 = std::bind(::push, std::placeholders::_1, 3);
-  auto pushsh = push1 < (push1 < functional::id<::List>());
+  auto pushsh = functional::id<::List>() > push1 > push1;
 
   ::List l;
   auto result = pushsh(move(l));

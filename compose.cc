@@ -25,8 +25,10 @@ auto sum = [](List l) { return std::accumulate(l.begin(), l.end(), 1); };
 auto print = [](uint64_t i) { std::cout << i << std::endl; };
 
 void func(::List l) { print(sum(transform(init(std::move(l))))); }
-auto composed = 
-  ::print < (::sum < (::transform < (::init < functional::id<::List>())));
+auto composed0
+  = ::print < (::sum < (::transform < (::init < functional::id<::List>())));
+auto composed1
+  = functional::id<::List>() > ::init > ::transform > ::sum > ::print;
 } // namespace
 
 int main(void) {
@@ -37,9 +39,15 @@ int main(void) {
   }
   std::cout << std::endl;
   {
-    boost::timer::auto_cpu_timer t("my composition operator: %w [s]");
+    boost::timer::auto_cpu_timer t("my composition operator <: %w [s]");
     ::List l;
-    composed(std::move(l));
+    composed0(std::move(l));
+  }
+  std::cout << std::endl;
+  {
+    boost::timer::auto_cpu_timer t("my composition operator >: %w [s]");
+    ::List l;
+    composed1(std::move(l));
   }
   std::cout << std::endl;
 
