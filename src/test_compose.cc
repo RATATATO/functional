@@ -1,6 +1,6 @@
 /*!
   \file test_compose.cc
-  \brief compose.hのユニットテスト。
+  \brief Unit tests for function composition.
  */
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TestCompose
