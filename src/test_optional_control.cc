@@ -9,48 +9,35 @@
 #include <functional>
 #include <vector>
 #include <boost/test/unit_test.hpp>
+#include "test/vector_fixture.h"
 #include "functional/optional_control.h"
 
 using std::move;
 
 namespace {
-using Vector = std::vector<uint64_t>;
-class VectorFixture {
- public:
-  Vector origin;
-
- public:
-  VectorFixture() {
-    constexpr uint64_t size = 10;
-
-    origin.reserve(size);
-    origin.resize(size);
-    iota(origin.begin(), origin.end(), 1);
-  }
-};
-
-Vector increase(Vector&& src) {
+test::Vector increase(test::Vector&& src) {
   std::transform(
     src.begin(), src.end(), src.begin(), [](uint64_t i) { return i + 1; }
   );
-  return Vector(move(src));
+  return test::Vector(move(src));
 }
 
-bool is_increased(const Vector& v) {
+bool is_increased(const test::Vector& v) {
   uint64_t r = 2;
   return all_of(v.begin(), v.end(), [&r](uint64_t i) { return i == r++; });
 }
 
-bool check_sum(uint64_t s, const Vector& v)
+bool check_sum(uint64_t s, const test::Vector& v)
   { return (v.size() * (v.size() + 1) / 2) == s; }
 
-uint64_t sum(const Vector& v) {
+uint64_t sum(const test::Vector& v) {
   return std::accumulate(
     v.begin(), v.end(), 0, [](uint64_t s, uint64_t i) { return s + i; }
   );
 }
 
-Vector throw_exception(Vector&& src) { throw 10; return Vector(move(src)); }
+test::Vector throw_exception(test::Vector&& src)
+  { throw 10; return test::Vector(move(src)); }
 
 } // namespace
 
@@ -77,10 +64,10 @@ BOOST_AUTO_TEST_CASE(verifyInjectOptionThrownException) {
   BOOST_CHECK(functional::isNone(a));
 }
 
-BOOST_FIXTURE_TEST_SUITE(vector_suit, ::VectorFixture)
+BOOST_FIXTURE_TEST_SUITE(vector_suit, test::VectorFixture)
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
-  boost::optional<Vector> src = boost::make_optional(move(origin));
+  boost::optional<test::Vector> src = boost::make_optional(move(origin));
   auto dst = functional::fmap(move(src), ::increase);
 
   BOOST_CHECK(dst);
@@ -88,14 +75,14 @@ BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
 }
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReferenceThrownException) {
-  boost::optional<Vector> src = boost::make_optional(move(origin));
+  boost::optional<test::Vector> src = boost::make_optional(move(origin));
   auto dst = functional::fmap(move(src), ::throw_exception);
 
   BOOST_CHECK(!dst);
 }
 
 BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
-  boost::optional<Vector> src = boost::make_optional(move(origin));
+  boost::optional<test::Vector> src = boost::make_optional(move(origin));
   auto s = functional::fmap(src, ::sum);
 
   BOOST_CHECK(s);
@@ -104,23 +91,25 @@ BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
 }
 
 BOOST_AUTO_TEST_CASE(verifyBind) {
-  auto move_vector = [](Vector&& v) -> boost::optional<Vector> {
-    try { Vector new_v(move(v)); return boost::make_optional(new_v); }
+  auto move_vector = [](test::Vector&& v) -> boost::optional<test::Vector> {
+    try { test::Vector new_v(move(v)); return boost::make_optional(new_v); }
     catch(...) { return boost::none; }
   };
-  boost::optional<Vector> src = boost::make_optional(move(origin));
+  boost::optional<test::Vector> src = boost::make_optional(move(origin));
   auto r = functional::bind(move(src), move_vector);
 
   BOOST_REQUIRE(r.get().begin() != r.get().end());
 }
 
 BOOST_AUTO_TEST_CASE(verifyBindForLvalueReference) {
-  auto copy_vector = [](const Vector& v) -> boost::optional<Vector> {
-    try { Vector new_v(v); return boost::make_optional(new_v); }
+  auto copy_vector = [](
+    const test::Vector& v
+  ) -> boost::optional<test::Vector> {
+    try { test::Vector new_v(v); return boost::make_optional(new_v); }
     catch(...) { return boost::none; }
   };
 
-  boost::optional<Vector> src = boost::make_optional(move(origin));
+  boost::optional<test::Vector> src = boost::make_optional(move(origin));
   auto r = functional::bind(src, copy_vector);
 
   BOOST_REQUIRE(src.get().begin() != src.get().end());
