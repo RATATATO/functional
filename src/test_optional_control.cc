@@ -13,38 +13,42 @@
 #include "functional/optional_control.h"
 
 using std::move;
+using boost::none;
+using boost::optional;
+using boost::make_optional;
+using test::Vector;
 
 namespace {
-test::Vector increase(test::Vector&& src) {
+Vector increase(Vector&& src) {
   std::transform(
     src.begin(), src.end(), src.begin(), [](uint64_t i) { return i + 1; }
   );
-  return test::Vector(move(src));
+  return Vector(move(src));
 }
 
-bool is_increased(const test::Vector& v) {
+bool is_increased(const Vector& v) {
   uint64_t r = 2;
-  return all_of(v.begin(), v.end(), [&r](uint64_t i) { return i == r++; });
+  return std::all_of(v.begin(), v.end(), [&r](uint64_t i) { return i == r++; });
 }
 
-bool check_sum(uint64_t s, const test::Vector& v)
+bool check_sum(uint64_t s, const Vector& v)
   { return (v.size() * (v.size() + 1) / 2) == s; }
 
-uint64_t sum(const test::Vector& v) {
+uint64_t sum(const Vector& v) {
   return std::accumulate(
     v.begin(), v.end(), 0, [](uint64_t s, uint64_t i) { return s + i; }
   );
 }
 
-test::Vector throw_exception(test::Vector&& src)
-  { throw 10; return test::Vector(move(src)); }
+Vector throw_exception(Vector&& src)
+  { throw 10; return Vector(move(src)); }
 
 } // namespace
 
 BOOST_AUTO_TEST_CASE(verifyInjectOption) {
   using List = std::list<int>;
   List l;
-  boost::optional<List> a = functional::inject_optional(
+  optional<List> a = functional::inject_optional(
     [](List&& l) { l.push_back(10); return std::list<int>(move(l)); },
     std::move(l)
   );
@@ -55,7 +59,7 @@ BOOST_AUTO_TEST_CASE(verifyInjectOption) {
 }
 
 BOOST_AUTO_TEST_CASE(verifyInjectOptionThrownException) {
-  boost::optional<int> a = functional::inject_optional(
+  optional<int> a = functional::inject_optional(
     [] { throw 15; return 21; }
   );
 
@@ -67,7 +71,7 @@ BOOST_AUTO_TEST_CASE(verifyInjectOptionThrownException) {
 BOOST_FIXTURE_TEST_SUITE(vector_suit, test::VectorFixture)
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
-  boost::optional<test::Vector> src = boost::make_optional(move(origin));
+  optional<Vector> src = make_optional(move(origin));
   auto dst = functional::fmap(move(src), ::increase);
 
   BOOST_CHECK(dst);
@@ -75,14 +79,14 @@ BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
 }
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReferenceThrownException) {
-  boost::optional<test::Vector> src = boost::make_optional(move(origin));
+  optional<Vector> src = make_optional(move(origin));
   auto dst = functional::fmap(move(src), ::throw_exception);
 
   BOOST_CHECK(!dst);
 }
 
 BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
-  boost::optional<test::Vector> src = boost::make_optional(move(origin));
+  optional<Vector> src = make_optional(move(origin));
   auto s = functional::fmap(src, ::sum);
 
   BOOST_CHECK(s);
@@ -91,25 +95,23 @@ BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
 }
 
 BOOST_AUTO_TEST_CASE(verifyBind) {
-  auto move_vector = [](test::Vector&& v) -> boost::optional<test::Vector> {
-    try { test::Vector new_v(move(v)); return boost::make_optional(new_v); }
-    catch(...) { return boost::none; }
+  auto move_vector = [](Vector&& v) -> optional<Vector> {
+    try { Vector new_v(move(v)); return make_optional(new_v); }
+    catch(...) { return none; }
   };
-  boost::optional<test::Vector> src = boost::make_optional(move(origin));
+  optional<Vector> src = make_optional(move(origin));
   auto r = functional::bind(move(src), move_vector);
 
   BOOST_REQUIRE(r.get().begin() != r.get().end());
 }
 
 BOOST_AUTO_TEST_CASE(verifyBindForLvalueReference) {
-  auto copy_vector = [](
-    const test::Vector& v
-  ) -> boost::optional<test::Vector> {
-    try { test::Vector new_v(v); return boost::make_optional(new_v); }
-    catch(...) { return boost::none; }
+  auto copy_vector = [](const Vector& v) -> optional<Vector> {
+    try { Vector new_v(v); return make_optional(new_v); }
+    catch(...) { return none; }
   };
 
-  boost::optional<test::Vector> src = boost::make_optional(move(origin));
+  optional<Vector> src = make_optional(move(origin));
   auto r = functional::bind(src, copy_vector);
 
   BOOST_REQUIRE(src.get().begin() != src.get().end());
