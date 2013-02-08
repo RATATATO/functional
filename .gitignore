@@ -1,11 +1,10 @@
 # cmake
-*.txt
-*.cmake
-Makefile
 CMakeFiles/*
-Testing/*
+Testing/
+*.cmake
+CMakeCache.txt
+Makefile
 bin/*
 # vim
 *.swp
-# 
-*.cc
+
