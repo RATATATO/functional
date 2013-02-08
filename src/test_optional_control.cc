@@ -89,22 +89,30 @@ BOOST_AUTO_TEST_CASE(verifyBind) {
     catch(...) { return none; }
   };
   optional<Vector> src = make_optional(move(modified));
-  auto r = functional::bind(move(src), move_vector);
+  auto copied = functional::bind(move(src), move_vector);
 
-  BOOST_REQUIRE(r.get().begin() != r.get().end());
+  BOOST_REQUIRE(copied);
+  BOOST_REQUIRE(copied.get().size() == origin.size());
+  BOOST_CHECK(
+    std::equal(copied.get().begin(), copied.get().end(), origin.begin())
+  );
 }
 
-BOOST_AUTO_TEST_CASE(verifyBindForLvalueReference) {
+BOOST_AUTO_TEST_CASE(verifyBindForConstLvalueReference) {
   auto copy_vector = [](const Vector& v) -> optional<Vector> {
     try { Vector new_v(v); return make_optional(new_v); }
     catch(...) { return none; }
   };
 
   optional<Vector> src = make_optional(move(modified));
-  auto r = functional::bind(src, copy_vector);
+  auto copied = functional::bind(src, copy_vector);
 
-  BOOST_REQUIRE(src.get().begin() != src.get().end());
-  BOOST_REQUIRE(r.get().begin() != r.get().end());
+  BOOST_REQUIRE(src);
+  BOOST_REQUIRE(copied);
+  BOOST_REQUIRE(copied.get().size() == origin.size());
+  BOOST_CHECK(
+    std::equal(copied.get().begin(), copied.get().end(), origin.begin())
+  );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
