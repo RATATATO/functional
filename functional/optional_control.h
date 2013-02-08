@@ -32,7 +32,7 @@ auto inject_optional(
   catch(...) { return boost::none; }
 }
 
-template <typename T, typename F>
+/*template <typename T, typename F>
 auto fmap(boost::optional<T>& o, F f) noexcept -> decltype(
   functional::inject_optional(f, std::move(o.get()))
 ) {
@@ -40,7 +40,7 @@ auto fmap(boost::optional<T>& o, F f) noexcept -> decltype(
     if(o) { return functional::inject_optional(f, o.get()); }
     else { return boost::none; }
   } catch(...) { return boost::none; }
-}
+}*/
 
 template <typename T, typename F>
 auto fmap(const boost::optional<T>& o, F f) noexcept -> decltype(
@@ -62,11 +62,11 @@ auto fmap(boost::optional<T>&& o, F f) noexcept -> decltype(
   } catch(...) { return boost::none; }
 }
 
-template <typename T, typename F>
+/*template <typename T, typename F>
 auto bind(boost::optional<T>& o, F f) noexcept -> decltype(f(o.get())) {
   try { if(o) { return f(o.get()); } else { return boost::none; } }
   catch(...) { return boost::none; }
-}
+}*/
 
 template <typename T, typename F>
 auto bind(const boost::optional<T>& o, F f) noexcept -> decltype(f(o.get())) {
