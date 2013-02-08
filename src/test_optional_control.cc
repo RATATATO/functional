@@ -38,27 +38,34 @@ BOOST_AUTO_TEST_CASE(verifyIsNone) {
   BOOST_CHECK(functional::isNone(opt1));
 }
 
-BOOST_AUTO_TEST_CASE(verifyInjectOption) {
+BOOST_AUTO_TEST_CASE(verifyInjectOption0) {
   using List = std::list<int>;
   List l;
-  optional<List> a = functional::inject_optional(
-    [](List&& l) { l.push_back(10); return std::list<int>(move(l)); },
+  auto opt = functional::inject_optional(
+    [](List&& l) { l.push_back(10); return List(move(l)); },
     std::move(l)
   );
 
-  BOOST_CHECK(a);
-  BOOST_CHECK(functional::hasSome(a));
-  BOOST_CHECK(a.get().back() == 10);
+  BOOST_CHECK(opt);
+  BOOST_CHECK(opt.get().back() == 10);
+}
+
+BOOST_AUTO_TEST_CASE(verifyInjectOption1) {
+  using List = std::list<int>;
+  List l;
+  auto opt = functional::inject_optional(
+    [](List&& l, uint64_t i) { l.push_back(i); return List(move(l)); },
+    std::move(l), 10
+  );
+
+  BOOST_CHECK(opt);
+  BOOST_CHECK(opt.get().back() == 10);
 }
 
 BOOST_AUTO_TEST_CASE(verifyInjectOptionThrownException) {
-  optional<int> a = functional::inject_optional(
-    [] { throw 15; return 21; }
-  );
+  auto opt = functional::inject_optional([] { throw 15; return 21; });
 
-  BOOST_CHECK(!a);
-  BOOST_CHECK(!functional::hasSome(a));
-  BOOST_CHECK(functional::isNone(a));
+  BOOST_CHECK(!opt);
 }
 
 BOOST_FIXTURE_TEST_SUITE(vector_suit, test::VectorFixture)
