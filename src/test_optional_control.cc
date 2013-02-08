@@ -18,33 +18,6 @@ using boost::optional;
 using boost::make_optional;
 using test::Vector;
 
-namespace {
-Vector increase(Vector&& src) {
-  std::transform(
-    src.begin(), src.end(), src.begin(), [](uint64_t i) { return i + 1; }
-  );
-  return Vector(move(src));
-}
-
-bool is_increased(const Vector& v) {
-  uint64_t r = 2;
-  return std::all_of(v.begin(), v.end(), [&r](uint64_t i) { return i == r++; });
-}
-
-bool check_sum(uint64_t s, const Vector& v)
-  { return (v.size() * (v.size() + 1) / 2) == s; }
-
-uint64_t sum(const Vector& v) {
-  return std::accumulate(
-    v.begin(), v.end(), 0, [](uint64_t s, uint64_t i) { return s + i; }
-  );
-}
-
-Vector throw_exception(Vector&& src)
-  { throw 10; return Vector(move(src)); }
-
-} // namespace
-
 BOOST_AUTO_TEST_CASE(verifyInjectOption) {
   using List = std::list<int>;
   List l;
@@ -71,27 +44,42 @@ BOOST_AUTO_TEST_CASE(verifyInjectOptionThrownException) {
 BOOST_FIXTURE_TEST_SUITE(vector_suit, test::VectorFixture)
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
+  auto increase = [](Vector&& src) {
+    std::transform(
+      src.begin(), src.end(), src.begin(), [](uint64_t i) { return i + 1; }
+    );
+    return Vector(move(src));
+  };
   optional<Vector> src = make_optional(move(origin));
-  auto dst = functional::fmap(move(src), ::increase);
+  auto dst = functional::fmap(move(src), increase);
 
   BOOST_CHECK(dst);
-  BOOST_CHECK(::is_increased(dst.get()));
+  uint64_t r = 2;
+  BOOST_CHECK(
+    std::all_of(
+      dst.get().begin(), dst.get().end(), [&r](uint64_t i) { return i == r++; }
+    )
+  );
 }
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReferenceThrownException) {
+  auto throw_exception = [](Vector&& src)
+    { throw 10; return Vector(move(src)); };
   optional<Vector> src = make_optional(move(origin));
-  auto dst = functional::fmap(move(src), ::throw_exception);
+  auto dst = functional::fmap(move(src), throw_exception);
 
   BOOST_CHECK(!dst);
 }
 
 BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
+  auto sum = [](const Vector& v)
+    { return std::accumulate(v.begin(), v.end(), 0); };
   optional<Vector> src = make_optional(move(origin));
-  auto s = functional::fmap(src, ::sum);
+  auto s = functional::fmap(src, sum);
 
   BOOST_CHECK(s);
   BOOST_REQUIRE(src.get().begin() != src.get().end());
-  BOOST_CHECK(::check_sum(s.get(), src.get()));
+  BOOST_CHECK(sum(modified) == s.get());
 }
 
 BOOST_AUTO_TEST_CASE(verifyBind) {
