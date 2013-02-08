@@ -39,26 +39,20 @@ BOOST_AUTO_TEST_CASE(verifyIsNone) {
 }
 
 BOOST_AUTO_TEST_CASE(verifyInjectOption0) {
-  using List = std::list<int>;
-  List l;
   auto opt = functional::inject_optional(
-    [](List&& l) { l.push_back(10); return List(move(l)); },
-    std::move(l)
+    [] { std::list<int> l; l.push_back(10); return move(l); }
   );
 
-  BOOST_CHECK(opt);
+  BOOST_REQUIRE(opt);
   BOOST_CHECK(opt.get().back() == 10);
 }
 
 BOOST_AUTO_TEST_CASE(verifyInjectOption1) {
-  using List = std::list<int>;
-  List l;
   auto opt = functional::inject_optional(
-    [](List&& l, uint64_t i) { l.push_back(i); return List(move(l)); },
-    std::move(l), 10
+    [](uint64_t i) { std::list<int> l; l.push_back(i); return move(l); }, 10
   );
 
-  BOOST_CHECK(opt);
+  BOOST_REQUIRE(opt);
   BOOST_CHECK(opt.get().back() == 10);
 }
 
