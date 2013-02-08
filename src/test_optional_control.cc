@@ -57,29 +57,31 @@ Vector throw_exception(Vector&& src) { throw 10; return Vector(move(src)); }
 BOOST_AUTO_TEST_CASE(verifyInjectOption) {
   using List = std::list<int>;
   List l;
-  boost::optional<List> a = monad::inject_optional(
+  boost::optional<List> a = functional::inject_optional(
     [](List&& l) { l.push_back(10); return std::list<int>(move(l)); },
     std::move(l)
   );
 
   BOOST_CHECK(a);
-  BOOST_CHECK(monad::hasSome(a));
+  BOOST_CHECK(functional::hasSome(a));
   BOOST_CHECK(a.get().back() == 10);
 }
 
 BOOST_AUTO_TEST_CASE(verifyInjectOptionThrownException) {
-  boost::optional<int> a = monad::inject_optional([] { throw 15; return 21; });
+  boost::optional<int> a = functional::inject_optional(
+    [] { throw 15; return 21; }
+  );
 
   BOOST_CHECK(!a);
-  BOOST_CHECK(!monad::hasSome(a));
-  BOOST_CHECK(monad::isNone(a));
+  BOOST_CHECK(!functional::hasSome(a));
+  BOOST_CHECK(functional::isNone(a));
 }
 
 BOOST_FIXTURE_TEST_SUITE(vector_suit, ::VectorFixture)
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
   boost::optional<Vector> src = boost::make_optional(move(origin));
-  auto dst = monad::fmap(move(src), ::increase);
+  auto dst = functional::fmap(move(src), ::increase);
 
   BOOST_CHECK(dst);
   BOOST_CHECK(::is_increased(dst.get()));
@@ -87,15 +89,15 @@ BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
 
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReferenceThrownException) {
   boost::optional<Vector> src = boost::make_optional(move(origin));
-  auto dst = monad::fmap(move(src), ::throw_exception);
+  auto dst = functional::fmap(move(src), ::throw_exception);
 
   BOOST_CHECK(!dst);
 }
 
 BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
   boost::optional<Vector> src = boost::make_optional(move(origin));
-  auto s = monad::fmap(src, ::sum);
-  auto s2 = monad::fmap(src, ::sum);
+  auto s = functional::fmap(src, ::sum);
+  auto s2 = functional::fmap(src, ::sum);
 
   BOOST_CHECK(s);
   BOOST_REQUIRE(src.get().begin() != src.get().end());
@@ -108,7 +110,7 @@ BOOST_AUTO_TEST_CASE(verifyBind) {
     catch(...) { return boost::none; }
   };
   boost::optional<Vector> src = boost::make_optional(move(origin));
-  auto r = monad::bind(move(src), move_vector);
+  auto r = functional::bind(move(src), move_vector);
 
   BOOST_REQUIRE(r.get().begin() != r.get().end());
 }
@@ -120,10 +122,11 @@ BOOST_AUTO_TEST_CASE(verifyBindForLvalueReference) {
   };
 
   boost::optional<Vector> src = boost::make_optional(move(origin));
-  auto r = monad::bind(src, copy_vector);
+  auto r = functional::bind(src, copy_vector);
 
   BOOST_REQUIRE(src.get().begin() != src.get().end());
   BOOST_REQUIRE(r.get().begin() != r.get().end());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

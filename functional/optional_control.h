@@ -2,13 +2,13 @@
   \file optional_control.h
   \brief Functions for boost::optional.
  */
-#ifndef MONAD_OPTIONAL_CONTROL_H_
-#define MONAD_OPTIONAL_CONTROL_H_
+#ifndef FUNCTIONAL_OPTION_CONTROL_H_
+#define FUNCTIONAL_OPTION_CONTROL_H_
 
 #include <functional>
 #include <boost/optional.hpp>
 
-namespace monad {
+namespace functional {
 
 template <typename T>
 inline bool hasSome(const boost::optional<T>& o) noexcept
@@ -16,7 +16,7 @@ inline bool hasSome(const boost::optional<T>& o) noexcept
 
 template <typename T, typename... Args>
 inline bool hasSome(const boost::optional<T>& o, const Args&... args) noexcept
-  { return o && monad::hasSome(args...); }
+  { return o && functional::hasSome(args...); }
 
 template <typename T>
 inline bool isNone(const boost::optional<T>& o) noexcept
@@ -34,30 +34,30 @@ auto inject_optional(
 
 template <typename T, typename F>
 auto fmap(boost::optional<T>& o, F f) noexcept -> decltype(
-  monad::inject_optional(f, std::move(o.get()))
+  functional::inject_optional(f, std::move(o.get()))
 ) {
   try {
-    if(o) { return monad::inject_optional(f, o.get()); }
+    if(o) { return functional::inject_optional(f, o.get()); }
     else { return boost::none; }
   } catch(...) { return boost::none; }
 }
 
 template <typename T, typename F>
 auto fmap(const boost::optional<T>& o, F f) noexcept -> decltype(
-  monad::inject_optional(f, std::move(o.get()))
+  functional::inject_optional(f, std::move(o.get()))
 ) {
   try {
-    if(o) { return monad::inject_optional(f, o.get()); }
+    if(o) { return functional::inject_optional(f, o.get()); }
     else { return boost::none; }
   } catch(...) { return boost::none; }
 }
 
 template <typename T, typename F>
 auto fmap(boost::optional<T>&& o, F f) noexcept -> decltype(
-  monad::inject_optional(f, std::move(o.get()))
+  functional::inject_optional(f, std::move(o.get()))
 ) {
   try {
-    if(o) { return monad::inject_optional(f, std::move(o.get())); }
+    if(o) { return functional::inject_optional(f, std::move(o.get())); }
     else { return boost::none; }
   } catch(...) { return boost::none; }
 }
@@ -82,6 +82,7 @@ auto bind(boost::optional<T>&& o, F f) noexcept -> decltype(
   catch(...) { return boost::none; }
 }
 
-} // namespace monad
+} // namespace functional
 
 #endif
+
