@@ -97,7 +97,6 @@ BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReferenceThrownException) {
 BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
   boost::optional<Vector> src = boost::make_optional(move(origin));
   auto s = functional::fmap(src, ::sum);
-  auto s2 = functional::fmap(src, ::sum);
 
   BOOST_CHECK(s);
   BOOST_REQUIRE(src.get().begin() != src.get().end());
