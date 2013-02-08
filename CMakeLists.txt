@@ -3,11 +3,12 @@ ENABLE_TESTING()
 
 PROJECT(compose)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
+INCLUDE_DIRECTORIES(.)
 
-ADD_EXECUTABLE(compose compose.cc)
+ADD_EXECUTABLE(compose src/compose.cc)
 TARGET_LINK_LIBRARIES(compose boost_system boost_timer)
 
-ADD_EXECUTABLE(test_compose test_compose.cc)
+ADD_EXECUTABLE(test_compose src/test_compose.cc)
 ADD_TEST(test_compose ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_compose)
 TARGET_LINK_LIBRARIES(test_compose boost_unit_test_framework)
 
