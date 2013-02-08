@@ -1,6 +1,6 @@
 /*!
   \file compose.h
-  \brief 合成関数を返す演算子operator<と、恒等射を返す関数idの定義。
+  \brief Function definitions for function composition.
  */
 #ifndef FUNCTIONAL_COMPSE_H_
 #define FUNCTIONAL_COMPSE_H_
