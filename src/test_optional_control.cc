@@ -18,6 +18,26 @@ using boost::optional;
 using boost::make_optional;
 using test::Vector;
 
+BOOST_AUTO_TEST_CASE(verifyHasSome0) {
+  auto opt0 = make_optional(1);
+  BOOST_CHECK(functional::hasSome(opt0));
+  auto opt1 = make_optional(Vector());
+  BOOST_CHECK(functional::hasSome(opt1));
+}
+
+BOOST_AUTO_TEST_CASE(verifyHasSome1) {
+  auto opt0 = make_optional(1);
+  auto opt1 = make_optional(Vector());
+  BOOST_CHECK(functional::hasSome(opt0, opt1));
+}
+
+BOOST_AUTO_TEST_CASE(verifyIsNone) {
+  optional<int> opt0 = none;
+  BOOST_CHECK(functional::isNone(opt0));
+  optional<Vector> opt1 = none;
+  BOOST_CHECK(functional::isNone(opt1));
+}
+
 BOOST_AUTO_TEST_CASE(verifyInjectOption) {
   using List = std::list<int>;
   List l;
