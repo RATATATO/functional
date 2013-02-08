@@ -50,14 +50,15 @@ BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
     );
     return Vector(move(src));
   };
-  optional<Vector> src = make_optional(move(origin));
+  optional<Vector> src = make_optional(move(modified));
   auto dst = functional::fmap(move(src), increase);
 
   BOOST_CHECK(dst);
-  uint64_t r = 2;
+  BOOST_REQUIRE(dst.get().size() == origin.size());
   BOOST_CHECK(
-    std::all_of(
-      dst.get().begin(), dst.get().end(), [&r](uint64_t i) { return i == r++; }
+    std::equal(
+      dst.get().begin(), dst.get().end(), origin.begin(),
+      [](uint64_t i, uint64_t j) { return i == j + 1; }
     )
   );
 }
@@ -65,21 +66,21 @@ BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReference) {
 BOOST_AUTO_TEST_CASE(verifyFmapForRvalueReferenceThrownException) {
   auto throw_exception = [](Vector&& src)
     { throw 10; return Vector(move(src)); };
-  optional<Vector> src = make_optional(move(origin));
+  optional<Vector> src = make_optional(move(modified));
   auto dst = functional::fmap(move(src), throw_exception);
 
   BOOST_CHECK(!dst);
 }
 
-BOOST_AUTO_TEST_CASE(verifyFmapForLvalueReference) {
+BOOST_AUTO_TEST_CASE(verifyFmapForConstLvalueReference) {
   auto sum = [](const Vector& v)
     { return std::accumulate(v.begin(), v.end(), 0); };
-  optional<Vector> src = make_optional(move(origin));
+  optional<Vector> src = make_optional(move(modified));
   auto s = functional::fmap(src, sum);
 
+  BOOST_CHECK(src);
   BOOST_CHECK(s);
-  BOOST_REQUIRE(src.get().begin() != src.get().end());
-  BOOST_CHECK(sum(modified) == s.get());
+  BOOST_CHECK(sum(origin) == s.get());
 }
 
 BOOST_AUTO_TEST_CASE(verifyBind) {
@@ -87,7 +88,7 @@ BOOST_AUTO_TEST_CASE(verifyBind) {
     try { Vector new_v(move(v)); return make_optional(new_v); }
     catch(...) { return none; }
   };
-  optional<Vector> src = make_optional(move(origin));
+  optional<Vector> src = make_optional(move(modified));
   auto r = functional::bind(move(src), move_vector);
 
   BOOST_REQUIRE(r.get().begin() != r.get().end());
@@ -99,7 +100,7 @@ BOOST_AUTO_TEST_CASE(verifyBindForLvalueReference) {
     catch(...) { return none; }
   };
 
-  optional<Vector> src = make_optional(move(origin));
+  optional<Vector> src = make_optional(move(modified));
   auto r = functional::bind(src, copy_vector);
 
   BOOST_REQUIRE(src.get().begin() != src.get().end());
