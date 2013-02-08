@@ -6,6 +6,7 @@
 #define FUNCTIONAL_COMPSE_H_
 
 #include <functional>
+#include <type_traits>
 
 namespace functional {
 
