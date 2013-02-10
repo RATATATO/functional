@@ -14,8 +14,8 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 MACRO (add_unit_test target_name)
-	TARGET_LINK_LIBRARIES(${target_name} boost_unit_test_framework) 
-	ADD_TEST(${target_name} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target_name})
+  TARGET_LINK_LIBRARIES(${target_name} boost_unit_test_framework) 
+  ADD_TEST(${target_name} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target_name})
 ENDMACRO (add_unit_test)
 
 ADD_EXECUTABLE(compose src/compose.cc)
