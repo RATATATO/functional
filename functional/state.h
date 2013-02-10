@@ -1,3 +1,7 @@
+/*!
+  \file state.h
+  \brief The definition and its controls for a state monad.
+ */
 #ifndef FUNCTIONAL_STATE_H_
 #define FUNCTIONAL_STATE_H_
 

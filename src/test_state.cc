@@ -1,3 +1,7 @@
+/*!
+  \file test_state.cc
+  \brief Unit tests for controls of a state monad.
+ */
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TestState
 
