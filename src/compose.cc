@@ -1,6 +1,6 @@
 /*!
   \file compose.cc
-  \brief 合成関数のパフォーマンス検証。
+  \brief Performance checker for composed function.
  */
 #include <algorithm>
 #include <functional>
