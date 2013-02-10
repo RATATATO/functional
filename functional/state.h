@@ -71,7 +71,9 @@ constexpr functional::State<S, T> fmap(functional::State<S, T> state, F f) {
   return functional::make_state<T, S>(
     [state, f](S s) {
       auto new_state = state(std::move(s));
-      return std::make_pair(std::move(f(new_state.first)), new_state.second);
+      return std::make_pair(
+        std::move(f(new_state.first)), std::move(new_state.second)
+      );
     }
   );
 }
