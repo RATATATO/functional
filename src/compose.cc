@@ -26,9 +26,11 @@ auto print = [](uint64_t i) { std::cout << i << std::endl; };
 
 void func(::List l) { print(sum(transform(init(std::move(l))))); }
 auto composed0
-  = ::print < (::sum < (::transform < (::init < functional::id<::List>())));
+  = ::print < (
+    ::sum < (::transform < (::init < functional::make_id<::List>()))
+  );
 auto composed1
-  = functional::id<::List>() > ::init > ::transform > ::sum > ::print;
+  = functional::make_id<::List>() > ::init > ::transform > ::sum > ::print;
 } // namespace
 
 int main(void) {

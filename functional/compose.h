@@ -11,8 +11,12 @@
 namespace functional {
 
 template <typename T>
-constexpr std::function<T(T)> id()
-  { return [](T t) -> T { return std::forward<T>(t); }; }
+auto id(T&& t) noexcept -> decltype(std::forward<T>(t))
+  { return std::forward<T>(t); }
+
+template <typename T>
+constexpr std::function<T(T)> make_id() noexcept
+  { return ::functional::id<T>; }
 
 } // namespace functional
 
