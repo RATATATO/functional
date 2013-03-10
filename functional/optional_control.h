@@ -6,6 +6,7 @@
 #define FUNCTIONAL_OPTION_CONTROL_H_
 
 #include <functional>
+#include <iostream>
 #include <boost/optional.hpp>
 
 namespace functional {
@@ -62,6 +63,26 @@ auto fmap(boost::optional<T>&& o, F f) noexcept -> decltype(
   } catch(...) { return boost::none; }
 }
 
+template <typename T, typename F>
+auto fmap(
+  const boost::optional<T>& o, F f, const char* message
+) noexcept -> decltype(functional::inject_optional(f, std::move(o.get()))) {
+  try {
+    if(o) { return functional::inject_optional(f, o.get()); }
+    else { return boost::none; }
+  } catch(...) { std::cerr << message; return boost::none; }
+}
+
+template <typename T, typename F>
+auto fmap(
+  boost::optional<T>&& o, F f, const char* message
+) noexcept -> decltype(functional::inject_optional(f, std::move(o.get()))) {
+  try {
+    if(o) { return functional::inject_optional(f, std::move(o.get())); }
+    else { return boost::none; }
+  } catch(...) { std::cerr << message; return boost::none; }
+}
+
 /*template <typename T, typename F>
 auto bind(boost::optional<T>& o, F f) noexcept -> decltype(f(o.get())) {
   try { if(o) { return f(o.get()); } else { return boost::none; } }
@@ -80,6 +101,22 @@ auto bind(boost::optional<T>&& o, F f) noexcept -> decltype(
 ) {
   try { if(o) { return f(std::move(o.get())); } else { return boost::none; } }
   catch(...) { return boost::none; }
+}
+
+template <typename T, typename F>
+auto bind(
+  const boost::optional<T>& o, F f, const char* message
+) noexcept -> decltype(f(o.get())) {
+  try { if(o) { return f(o.get()); } else { return boost::none; } }
+  catch(...) { std::cerr << message; return boost::none; }
+}
+
+template <typename T, typename F>
+auto bind(
+  boost::optional<T>&& o, F f, const char* message
+) noexcept -> decltype(f(std::move(o.get()))) {
+  try { if(o) { return f(std::move(o.get())); } else { return boost::none; } }
+  catch(...) { std::cerr << message; return boost::none; }
 }
 
 } // namespace functional
